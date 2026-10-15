@@ -32,8 +32,9 @@ dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin
  try {
  const data=JSON.parse(document.getElementById('embedded-coastlines').textContent);
  if(data.schema!=='ASTER_PROVISIONAL_COASTLINES_V6'||data.source_rows!==3072||!Array.isArray(data.islands)||data.islands.length!==32)throw Error('Unexpected schema');
- const islandNames={"0":"Ashveil","2":"Skyglass Isle","6":"Reedwater Confluence","7":"Siltwatch","9":"Redvale","14":"Broadroot","17":"Stonewake","27":"Crosscurrent"};
- const islandLabel=id=>Object.prototype.hasOwnProperty.call(islandNames,id)?islandNames[id]+' · Island '+id:'Island '+id;
+ const islandNames={"0":"Ashveil","1":"Northreach","2":"Skyglass Isle","3":"Farwing","4":"Paleholt","5":"Cloudmere","6":"Reedwater Confluence","7":"Siltwatch","8":"Mirelash","9":"Redvale","10":"Emberisle","11":"Stormcrest","12":"Southwind","13":"Greenmantle","14":"Broadroot","15":"Sunward","16":"Eastmere","17":"Stonewake","18":"Warmhold","19":"Tideward","20":"Brineisle","21":"Coralkey","22":"Highmere","23":"Deepward","24":"Lantern","25":"Whisper","26":"Greyshield","27":"Crosscurrent","28":"Shatterreefs","29":"Moonwake","30":"Southreach","31":"Brightspear"};
+ const lockedNames=new Set([0,2,6,7,9,14,17,27]);
+ const islandLabel=id=>Object.prototype.hasOwnProperty.call(islandNames,id)?islandNames[id]+' · Island '+id+(!lockedNames.has(id)?' (provisional)':''):'Island '+id;
  const seen=new Set(),NS='http://www.w3.org/2000/svg',selectIsland=new Map();
  for(const island of data.islands){
   if(!Number.isInteger(island.island)||seen.has(island.island)||island.points.length!==96||island.points.some(p=>p.length!==2||p.some(x=>!Number.isFinite(x))))throw Error('Incomplete source geometry');
