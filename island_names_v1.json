@@ -1,0 +1,201 @@
+{
+  "schema": "ASTER_ATLAS_ISLAND_NAMES_V1",
+  "authority": "APPROVED_ATLAS_NAME",
+  "id_space": "0..31",
+  "count": 32,
+  "source_note": "8 names locked in ASTER_WORLD_037H_Redundancy_Intervention_Run.xlsx; 24 from Aster World: The Archipelago.png approved by owner 2026-10-15; artwork Island 32 Farshore excluded. Name approval does not validate v6 coastlines.",
+  "islands": [
+    {
+      "island_id": 0,
+      "atlas_name": "Ashveil",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 1,
+      "atlas_name": "Northreach",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 2,
+      "atlas_name": "Skyglass Isle",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 3,
+      "atlas_name": "Farwing",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 4,
+      "atlas_name": "Paleholt",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 5,
+      "atlas_name": "Cloudmere",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 6,
+      "atlas_name": "Reedwater Confluence",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 7,
+      "atlas_name": "Siltwatch",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 8,
+      "atlas_name": "Mirelash",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 9,
+      "atlas_name": "Redvale",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 10,
+      "atlas_name": "Emberisle",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 11,
+      "atlas_name": "Stormcrest",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 12,
+      "atlas_name": "Southwind",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 13,
+      "atlas_name": "Greenmantle",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 14,
+      "atlas_name": "Broadroot",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 15,
+      "atlas_name": "Sunward",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 16,
+      "atlas_name": "Eastmere",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 17,
+      "atlas_name": "Stonewake",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 18,
+      "atlas_name": "Warmhold",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 19,
+      "atlas_name": "Tideward",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 20,
+      "atlas_name": "Brineisle",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 21,
+      "atlas_name": "Coralkey",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 22,
+      "atlas_name": "Highmere",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 23,
+      "atlas_name": "Deepward",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 24,
+      "atlas_name": "Lantern",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 25,
+      "atlas_name": "Whisper",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 26,
+      "atlas_name": "Greyshield",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 27,
+      "atlas_name": "Crosscurrent",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "037H_LOCKED_REGISTRY"
+    },
+    {
+      "island_id": 28,
+      "atlas_name": "Shatterreefs",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 29,
+      "atlas_name": "Moonwake",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 30,
+      "atlas_name": "Southreach",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    },
+    {
+      "island_id": 31,
+      "atlas_name": "Brightspear",
+      "approval": "APPROVED_ATLAS_NAME",
+      "source": "ARCHIPELAGO_ARTWORK_OWNER_APPROVED_2026_10_15"
+    }
+  ]
+}
