@@ -32,15 +32,17 @@ dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin
  try {
  const data=JSON.parse(document.getElementById('embedded-coastlines').textContent);
  if(data.schema!=='ASTER_PROVISIONAL_COASTLINES_V6'||data.source_rows!==3072||!Array.isArray(data.islands)||data.islands.length!==32)throw Error('Unexpected schema');
+ const islandNames={"0":"Ashveil","2":"Skyglass Isle","6":"Reedwater Confluence","7":"Siltwatch","9":"Redvale","14":"Broadroot","17":"Stonewake","27":"Crosscurrent"};
+ const islandLabel=id=>Object.prototype.hasOwnProperty.call(islandNames,id)?islandNames[id]+' · Island '+id:'Island '+id;
  const seen=new Set(),NS='http://www.w3.org/2000/svg',selectIsland=new Map();
  for(const island of data.islands){
   if(!Number.isInteger(island.island)||seen.has(island.island)||island.points.length!==96||island.points.some(p=>p.length!==2||p.some(x=>!Number.isFinite(x))))throw Error('Incomplete source geometry');
   seen.add(island.island);
   let element=document.createElementNS(NS,'path');
   element.setAttribute('d',island.points.map((p,i)=>(i?'L':'M')+p[0]+' '+(-p[1])).join(' ')+' Z');
-  element.setAttribute('tabindex','0');element.setAttribute('aria-label','Island '+island.island);
-  const select=()=>{viewport.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));element.classList.add('active');document.getElementById('heading').textContent='Island '+island.island;document.getElementById('id').textContent=island.island;document.getElementById('vertices').textContent=island.points.length;fitIsland(island.points);};
-  selectIsland.set(island.island,select);const option=document.createElement('option');option.value=String(island.island);option.textContent='Island '+island.island;jump.append(option);
+  element.setAttribute('tabindex','0');element.setAttribute('aria-label',islandLabel(island.island));
+  const select=()=>{viewport.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));element.classList.add('active');document.getElementById('heading').textContent=islandLabel(island.island);document.getElementById('id').textContent=island.island;document.getElementById('vertices').textContent=island.points.length;fitIsland(island.points);};
+  selectIsland.set(island.island,select);const option=document.createElement('option');option.value=String(island.island);option.textContent=islandLabel(island.island);jump.append(option);
   element.addEventListener('click',()=>{select();jump.value=String(island.island)});element.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();jump.value=String(island.island)}});
   viewport.append(element);
  }
