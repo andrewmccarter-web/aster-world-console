@@ -1,0 +1,34 @@
+{
+  "schema": "ASTER_C30_REGIONAL_SETTLEMENT_COUNTS_V1",
+  "authority": "DERIVED-PROVISIONAL",
+  "source_archive_sha256": "1ecdf28d794ec1dc8ef3fd55b49c8e3aea521de25c5fb3bca13bc565eddbf703",
+  "source_member": "ASTER_C30_WORLD_SETTLEMENT_PLACEMENTS.csv",
+  "total": 206302,
+  "regional_anchor_settlement_counts": [
+    {
+      "anchor_island_id": 2,
+      "region_settlements": 20631
+    },
+    {
+      "anchor_island_id": 6,
+      "region_settlements": 72206
+    },
+    {
+      "anchor_island_id": 7,
+      "region_settlements": 14442
+    },
+    {
+      "anchor_island_id": 9,
+      "region_settlements": 35072
+    },
+    {
+      "anchor_island_id": 14,
+      "region_settlements": 47448
+    },
+    {
+      "anchor_island_id": 27,
+      "region_settlements": 16503
+    }
+  ],
+  "warning": "Counts group C30 settlements by the region's anchor island, not by each island's physical landmass. Not suitable for settlement pins or per-island counts."
+}
