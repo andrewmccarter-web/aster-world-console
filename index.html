@@ -11,7 +11,8 @@ path{stroke:#b9ac7a;stroke-width:.002;fill:#617b6a;cursor:pointer;vector-effect:
 path:hover,path.active{fill:#a0a978;stroke:#faf1c4;stroke-width:2}
 aside{padding:24px;background:#1a2d37;border-left:1px solid #53636b}
 button{background:#334f55;color:white;border:1px solid #82969c;border-radius:7px;padding:10px;margin:3px;cursor:pointer}
-button:focus-visible,path:focus-visible{outline:3px solid #fff}
+button:focus-visible,path:focus-visible,select:focus-visible{outline:3px solid #fff}
+select{display:block;width:100%;max-width:280px;padding:11px;margin:8px 0 14px;background:#334f55;color:white;border:1px solid #82969c;border-radius:7px;font:inherit}
 dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin:0}
 #status{font-size:.9rem;line-height:1.6}#stage .note{position:absolute;left:12px;bottom:10px;font-size:.75rem;color:#e9e2c5;pointer-events:none}
 @media(max-width:780px){main{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid #53636b}#stage{height:55svh;min-height:320px}}
@@ -20,6 +21,7 @@ dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin
 <aside><h2 id="heading">Select an island</h2><p class="muted">Provisional coastlines v6. Four outlines were reshaped to remove overlaps while preserving their areas and centres. These are not measured Earth distances.</p>
 <dl><dt>Island</dt><dd id="id">—</dd><dt>Vertices</dt><dd id="vertices">—</dd><dt>Authority</dt><dd>PROVISIONAL-CREATIVE</dd></dl>
 <p><a href="./ecology.html" style="color:#f2d79f;font-weight:650">View verified experimental ecology receipt →</a></p>
+<div><label for="island-jump">Find an island</label><select id="island-jump" aria-label="Choose an island to zoom into"><option value="">Choose island…</option></select></div>
 <div><button id="reset">Whole world</button><button id="zin">Zoom +</button><button id="zout">Zoom −</button></div>
 <p id="status" aria-live="polite">Loading source records…</p><p class="muted">No terrain, rivers, settlements or nutrient observations are implied by this coastline layer. No simulation mutations.</p>
 </aside></main>
@@ -30,7 +32,7 @@ dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin
  try {
  const data=JSON.parse(document.getElementById('embedded-coastlines').textContent);
  if(data.schema!=='ASTER_PROVISIONAL_COASTLINES_V6'||data.source_rows!==3072||!Array.isArray(data.islands)||data.islands.length!==32)throw Error('Unexpected schema');
- const seen=new Set(),NS='http://www.w3.org/2000/svg';
+ const seen=new Set(),NS='http://www.w3.org/2000/svg',jump=document.getElementById('island-jump'),selectIsland=new Map();
  for(const island of data.islands){
   if(!Number.isInteger(island.island)||seen.has(island.island)||island.points.length!==96||island.points.some(p=>p.length!==2||p.some(x=>!Number.isFinite(x))))throw Error('Incomplete source geometry');
   seen.add(island.island);
@@ -38,9 +40,11 @@ dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin
   element.setAttribute('d',island.points.map((p,i)=>(i?'L':'M')+p[0]+' '+(-p[1])).join(' ')+' Z');
   element.setAttribute('tabindex','0');element.setAttribute('aria-label','Island '+island.island);
   const select=()=>{viewport.querySelectorAll('.active').forEach(x=>x.classList.remove('active'));element.classList.add('active');document.getElementById('heading').textContent='Island '+island.island;document.getElementById('id').textContent=island.island;document.getElementById('vertices').textContent=island.points.length;fitIsland(island.points);};
-  element.addEventListener('click',select);element.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select()}});
+  selectIsland.set(island.island,select);const option=document.createElement('option');option.value=String(island.island);option.textContent='Island '+island.island;jump.append(option);
+  element.addEventListener('click',()=>{select();jump.value=String(island.island)});element.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();jump.value=String(island.island)}});
   viewport.append(element);
  }
+ jump.addEventListener('change',()=>{const selected=selectIsland.get(Number(jump.value));if(jump.value!==''&&selected)selected()});
  status.textContent='Loaded 32 rings, 3,072 points. Overlap check: 496 pairs clear. Read-only map.';
  }catch(err){status.textContent='Map blocked: '+err.message;return}
  let scale=1,dx=0,dy=0,last=null;
@@ -52,7 +56,7 @@ dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin
   dx=-(left+right)/2*scale;dy=-(top+bottom)/2*scale;draw();
  }
  const zoom=f=>{const next=Math.max(.65,Math.min(64,scale*f)),ratio=next/scale;dx*=ratio;dy*=ratio;scale=next;draw()};
- document.getElementById('reset').onclick=()=>{scale=1;dx=0;dy=0;draw()};
+ document.getElementById('reset').onclick=()=>{scale=1;dx=0;dy=0;draw();jump.value='';viewport.querySelectorAll('.active').forEach(x=>x.classList.remove('active'))};
  document.getElementById('zin').onclick=()=>zoom(1.4);document.getElementById('zout').onclick=()=>zoom(1/1.4);
  svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY<0?1.15:1/1.15)},{passive:false});
  const pointers=new Map();let origin=null,dragging=false,pinchDistance=null;
