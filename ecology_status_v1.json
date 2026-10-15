@@ -1,0 +1,33 @@
+{
+  "schema": "ASTER_PUBLIC_ECOLOGY_STATUS_v1",
+  "read_only": true,
+  "authority": "DERIVED_HISTORICAL_A12",
+  "origin_repo": "andrewmccarter-web/ASTER-WORLD",
+  "original_digest": "c4a09c39aa75b00576d6b2de3a411d1dd34c4e35c9d1cca353c8c76f3b37f828",
+  "named_species": 26448,
+  "species_patch_pairs": 46569,
+  "unit": "NORMALIZED_ECOLOGICAL_INDEX",
+  "historical_phase": 12,
+  "g4_chronon": null,
+  "canonical_site_occurrence": false,
+  "physical_biomass_kg": null,
+  "native_soil_credit_kg": 0,
+  "available": [
+    "historical_species_patch_membership",
+    "historical_normalized_patch_indices",
+    "experimental_local_journal",
+    "provisional_island_candidates"
+  ],
+  "blocked": [
+    "canonical_site_occurrence",
+    "physical_biomass",
+    "G4_historical_clock_binding",
+    "native_NPK",
+    "canonical_soil_writer"
+  ],
+  "consumer_policy": {
+    "advance_g4": false,
+    "write_world": false,
+    "physical_extraction": false
+  }
+}
