@@ -5,8 +5,8 @@
 *{box-sizing:border-box}body{margin:0}header{padding:18px 22px;background:#172a35;border-bottom:1px solid #53636b}
 h1{font-size:1.2rem;margin:0 0 5px}small,.muted{color:#c1c8c5}
 main{display:grid;grid-template-columns:minmax(0,1fr) minmax(255px,340px);min-height:calc(100vh - 78px)}
-#stage{min-height:65vh;background:#183949;touch-action:none;overflow:hidden;position:relative}
-svg{width:100%;height:100%;min-height:65vh;display:block}
+#stage{min-height:65vh;background:#183949;touch-action:none;overflow:hidden;position:relative;height:calc(100svh - 90px)}
+svg{width:100%;height:100%;min-height:0;display:block}
 path{stroke:#b9ac7a;stroke-width:.002;fill:#617b6a;cursor:pointer;vector-effect:non-scaling-stroke}
 path:hover,path.active{fill:#a0a978;stroke:#faf1c4;stroke-width:2}
 aside{padding:24px;background:#1a2d37;border-left:1px solid #53636b}
@@ -14,7 +14,7 @@ button{background:#334f55;color:white;border:1px solid #82969c;border-radius:7px
 button:focus-visible,path:focus-visible{outline:3px solid #fff}
 dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin:0}
 #status{font-size:.9rem;line-height:1.6}#stage .note{position:absolute;left:12px;bottom:10px;font-size:.75rem;color:#e9e2c5;pointer-events:none}
-@media(max-width:780px){main{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid #53636b}#stage,svg{min-height:51vh}}
+@media(max-width:780px){main{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid #53636b}#stage{height:55svh;min-height:320px}}
 </style></head><body><header><h1>ASTER / Provisional Coastline Atlas</h1><small>32 island outlines · 3,072 source vertices · offline, observer-only</small></header>
 <main><section id="stage" aria-label="Interactive island map"><svg id="map" viewBox="-1.05 -1.07 2.1 2.14" role="img" aria-label="ASTER provisional island outlines"><g id="viewport"></g></svg><div class="note">Drag to pan · pinch or scroll to zoom · tap island to inspect</div></section>
 <aside><h2 id="heading">Select an island</h2><p class="muted">These polygons are provisional ASTER geography, not confirmed coastlines or measured Earth distances.</p>
@@ -48,8 +48,24 @@ dl{display:grid;grid-template-columns:1fr 1fr;gap:8px}dt{color:#b9c1bd}dd{margin
  document.getElementById('reset').onclick=()=>{scale=1;dx=0;dy=0;draw()};
  document.getElementById('zin').onclick=()=>zoom(1.4);document.getElementById('zout').onclick=()=>zoom(1/1.4);
  svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY<0?1.15:1/1.15)},{passive:false});
- svg.addEventListener('pointerdown',e=>{last=[e.clientX,e.clientY];svg.setPointerCapture(e.pointerId)});
- svg.addEventListener('pointermove',e=>{if(!last)return;const rect=svg.getBoundingClientRect();dx+=(e.clientX-last[0])*2.1/rect.width;dy+=(e.clientY-last[1])*2.14/rect.height;last=[e.clientX,e.clientY];draw()});
- svg.addEventListener('pointerup',()=>last=null);svg.addEventListener('pointercancel',()=>last=null);
+ const pointers=new Map();let origin=null,dragging=false,pinchDistance=null;
+ const point=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+ const distance=()=>{const p=[...pointers.values()];return Math.hypot(p[0].clientX-p[1].clientX,p[0].clientY-p[1].clientY)};
+ svg.addEventListener('pointerdown',e=>{
+  pointers.set(e.pointerId,e);last=point(e);origin=[e.clientX,e.clientY];dragging=false;
+  if(pointers.size===2){pinchDistance=distance();for(const id of pointers.keys())svg.setPointerCapture(id)}
+ });
+ svg.addEventListener('pointermove',e=>{
+  if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,e);
+  if(pointers.size===2){const d=distance();if(pinchDistance>0)zoom(d/pinchDistance);pinchDistance=d;dragging=true;return}
+  if(pointers.size!==1)return;
+  const p=point(e);
+  if(!dragging&&Math.hypot(e.clientX-origin[0],e.clientY-origin[1])>5){dragging=true;svg.setPointerCapture(e.pointerId)}
+  if(dragging){dx+=p.x-last.x;dy+=p.y-last.y;draw()}last=p;
+ });
+ const end=e=>{pointers.delete(e.pointerId);pinchDistance=null;last=null;
+  if(pointers.size===1){const p=[...pointers.values()][0];last=point(p);origin=[p.clientX,p.clientY]}
+ };
+ svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
 })();
 </script></body></html>
