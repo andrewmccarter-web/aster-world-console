@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><title>Reedwater v0.8 asset checks</title>
+<body style="background:#14252b;color:#eee;font:16px system-ui;padding:24px">
+<h1>Botanical geometry checks</h1><pre id="result">Running…</pre>
+<script type="module">
+import * as T from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+import {bladeGeometry,createMaterialLibrary,createBotanicalLibrary} from './assets/botanical-assets.js';
+const out=document.getElementById('result');
+try{
+const check=(condition,label)=>{if(!condition)throw Error(label);};
+const g=bladeGeometry();
+for(const attr of ['position','normal','uv'])check([...g.attributes[attr].array].every(Number.isFinite),'nonfinite '+attr);
+check([...g.index.array].every(i=>i<g.attributes.position.count),'invalid indices');
+const materials=createMaterialLibrary(),lib=createBotanicalLibrary(materials),counts={};
+check(materials.water.isMeshPhysicalMaterial,'physical water material');
+check(materials.blades.every(m=>m.bumpMap&&m.roughnessMap),'tissue maps');
+for(const kind of ['whorl','tiers','fan']){
+ const a=lib.create(kind),b=lib.create(kind,1),am=[],bm=[];
+ a.traverse(o=>{if(o.isMesh)am.push(o)});b.traverse(o=>{if(o.isMesh)bm.push(o)});
+ check(a.userData.status==='PROVISIONAL','missing provisional metadata');
+ check(am.every(o=>o.userData.feature==='flora'),'missing pick metadata');
+ check(am.at(-1).geometry===bm.at(-1).geometry,'geometry not shared');
+ a.updateMatrixWorld(true);check(!new T.Box3().setFromObject(a).isEmpty(),'empty asset');
+ counts[kind]=am.length;
+}
+out.textContent='PASS — finite indexed geometry and normals; reusable factories; shared geometry; provisional pick metadata; physical materials and surface maps.\n'+JSON.stringify(counts,null,2);
+}catch(e){out.textContent='FAIL — '+e.message;throw e;}
+</script>
