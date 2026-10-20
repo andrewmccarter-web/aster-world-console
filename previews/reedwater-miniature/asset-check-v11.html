@@ -1,0 +1,62 @@
+<!doctype html><meta charset="utf-8"><title>Reedwater v0.11 asset checks</title>
+<body style="background:#14252b;color:#eee;font:16px system-ui;padding:24px">
+<h1>v0.11 specimen checks</h1><pre id="result">Running…</pre>
+<script type="module">
+import * as T from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+import {createMaterialLibrary,createBotanicalLibrary} from './assets/botanical-v11.js';
+import {thickBladeGeometry} from './assets/botanical-v10.js';
+import {bladeConflicts,bladeBox,boxesOverlap} from './assets/blade-clearance-v11.js';
+const result=document.getElementById('result');
+try{
+  const assert=(condition,message)=>{if(!condition)throw Error(message);};
+  const surface=thickBladeGeometry(),edges=new Map(),pos=surface.attributes.position,idx=surface.index.array;
+  let volume=0;
+  for(let i=0;i<idx.length;i+=3){
+    const a=idx[i],b=idx[i+1],c=idx[i+2];
+    const av=new T.Vector3().fromBufferAttribute(pos,a),bv=new T.Vector3().fromBufferAttribute(pos,b),cv=new T.Vector3().fromBufferAttribute(pos,c);
+    assert(bv.clone().sub(av).cross(cv.clone().sub(av)).length()>1e-10,'degenerate face');
+    volume+=av.dot(bv.clone().cross(cv))/6;
+    for(const [u,v] of [[a,b],[b,c],[c,a]]){const key=Math.min(u,v)+':'+Math.max(u,v);edges.set(key,(edges.get(key)||0)+1);}
+  }
+  assert([...edges.values()].every(n=>n===2),'open or nonmanifold lamina');
+  assert(volume>0,'nonpositive closed volume');
+  const library=createBotanicalLibrary(createMaterialLibrary()),records=[];let checkedPairs=0;
+  const fixture=new T.Mesh(new T.BoxGeometry(1,1,1));fixture.updateMatrixWorld(true);
+  const other=fixture.clone();other.updateMatrixWorld(true);
+  assert(boxesOverlap(bladeBox(fixture),bladeBox(other),0),'overlap fixture missed');
+  other.position.x=2;other.rotation.y=.7;other.updateMatrixWorld(true);
+  assert(!boxesOverlap(bladeBox(fixture),bladeBox(other),.025),'separation fixture rejected');
+  for(const kind of ['whorl','tiers','fan']){
+    for(let variant=0;variant<3;variant++){
+      const adult=library.create(kind,variant),copy=library.create(kind,variant),juvenile=library.create(kind,variant,'juvenile');
+      const a=[],b=[];adult.traverse(o=>{if(o.isMesh)a.push(o)});copy.traverse(o=>{if(o.isMesh)b.push(o)});
+      assert(a.every((o,i)=>o.geometry===b[i].geometry),'cache geometry parity');
+      for(const object of [adult,juvenile]){
+        object.updateMatrixWorld(true);
+        assert(bladeConflicts(object,0).length===0,'blade collision '+kind+'/'+variant);
+        checkedPairs+=object.userData.clearance.bladePairs;
+        const bounds=new T.Box3().setFromObject(object);
+        assert(!bounds.isEmpty(),'empty specimen');
+        object.traverse(o=>{
+          if(!o.isMesh)return;
+          assert(o.userData.status==='PROVISIONAL'&&o.userData.kind===kind,'provenance metadata');
+          for(const attribute of ['position','normal','uv'])
+            assert([...o.geometry.attributes[attribute].array].every(Number.isFinite),'nonfinite '+attribute);
+          const g=o.geometry;
+          if(g.index)assert([...g.index.array].every(i=>i<g.attributes.position.count),'invalid topology');
+        });
+      }
+      const adultSize=new T.Box3().setFromObject(adult).getSize(new T.Vector3()).length();
+      const youngSize=new T.Box3().setFromObject(juvenile).getSize(new T.Vector3()).length();
+      assert(youngSize<adultSize,'juvenile display scale');
+      const original=adult.children[0].position.clone();
+      copy.children[0].position.x+=100;
+      assert(adult.children[0].position.equals(original),'clone mutation leaked to world');
+      records.push(kind+' palette '+variant+': expanded + juvenile PASS');
+    }
+  }
+  let rejected=false;try{library.create('invented-species')}catch{rejected=true;}
+  assert(rejected,'unknown form accepted');
+  result.textContent='PASS — zero conservative blade-box overlaps in 18 variants; SAT overlap/separation fixtures; watertight nondegenerate lamina with positive volume; 18 form/stage/palette combinations; finite geometry and normals; valid topology; smaller juvenile bounds; cached geometry; independent transforms; PROVISIONAL metadata.\n\n'+records.join('\n')+'\n\nCertified blade pairs: '+checkedPairs;
+}catch(e){result.textContent='FAIL — '+e.message;throw e;}
+</script>
