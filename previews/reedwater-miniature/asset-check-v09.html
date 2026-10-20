@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8"><title>Reedwater v0.9 asset checks</title>
+<body style="background:#14252b;color:#eee;font:16px system-ui;padding:24px">
+<h1>v0.9 specimen checks</h1><pre id="result">Running…</pre>
+<script type="module">
+import * as T from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+import {createMaterialLibrary,createBotanicalLibrary} from './assets/botanical-v09.js';
+const result=document.getElementById('result');
+try{
+  const assert=(condition,message)=>{if(!condition)throw Error(message);};
+  const library=createBotanicalLibrary(createMaterialLibrary()),records=[];
+  for(const kind of ['whorl','tiers','fan']){
+    for(let variant=0;variant<3;variant++){
+      const adult=library.create(kind,variant),copy=library.create(kind,variant),juvenile=library.create(kind,variant,'juvenile');
+      const a=[],b=[];adult.traverse(o=>{if(o.isMesh)a.push(o)});copy.traverse(o=>{if(o.isMesh)b.push(o)});
+      assert(a.every((o,i)=>o.geometry===b[i].geometry),'cache geometry parity');
+      for(const object of [adult,juvenile]){
+        object.updateMatrixWorld(true);
+        const bounds=new T.Box3().setFromObject(object);
+        assert(!bounds.isEmpty(),'empty specimen');
+        object.traverse(o=>{
+          if(!o.isMesh)return;
+          assert(o.userData.status==='PROVISIONAL'&&o.userData.kind===kind,'provenance metadata');
+          for(const attribute of ['position','normal','uv'])
+            assert([...o.geometry.attributes[attribute].array].every(Number.isFinite),'nonfinite '+attribute);
+          const g=o.geometry;
+          if(g.index)assert([...g.index.array].every(i=>i<g.attributes.position.count),'invalid topology');
+        });
+      }
+      const adultSize=new T.Box3().setFromObject(adult).getSize(new T.Vector3()).length();
+      const youngSize=new T.Box3().setFromObject(juvenile).getSize(new T.Vector3()).length();
+      assert(youngSize<adultSize,'juvenile display scale');
+      const original=adult.children[0].position.clone();
+      copy.children[0].position.x+=100;
+      assert(adult.children[0].position.equals(original),'clone mutation leaked to world');
+      records.push(kind+' palette '+variant+': expanded + juvenile PASS');
+    }
+  }
+  let rejected=false;try{library.create('invented-species')}catch{rejected=true;}
+  assert(rejected,'unknown form accepted');
+  result.textContent='PASS — 18 form/stage/palette combinations; finite geometry and normals; valid topology; smaller juvenile bounds; cached geometry; independent transforms; PROVISIONAL metadata.\n\n'+records.join('\n');
+}catch(e){result.textContent='FAIL — '+e.message;throw e;}
+</script>
