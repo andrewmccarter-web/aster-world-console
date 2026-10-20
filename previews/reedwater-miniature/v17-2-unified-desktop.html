@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASTER — Unified World Explorer v17.2</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{font:14px system-ui;background:#172630;color:#f3e8d3}
+header{height:54px;padding:10px 16px;background:#253b43;
+display:flex;align-items:center;gap:12px}
+header strong{letter-spacing:.08em}
+header span{flex:1;color:#c3d1ce;font-size:12px}
+button,input{font:inherit}
+button{cursor:pointer;padding:8px 12px;border-radius:7px;
+border:1px solid #b4a37d;background:#29494e;color:#f6ecda}
+button[aria-selected=true]{background:#d7c08e;color:#24383c}
+main{height:calc(100dvh - 54px);display:grid;
+grid-template-columns:minmax(0,65fr) 8px minmax(0,35fr)}
+#world,#info{min-width:0;overflow:hidden}
+iframe{width:100%;height:100%;border:0;display:block}
+#divider{background:#718781;cursor:col-resize;touch-action:none}
+#info{background:#f6efe1;color:#253b43;display:flex;flex-direction:column}
+#tabs{display:flex;gap:6px;padding:10px;background:#253b43}
+#tabs button{flex:1}
+#catalogue{padding:14px;overflow:auto;flex:1}
+#guide{flex:1;min-height:0}
+#guide[hidden],#catalogue[hidden]{display:none}
+#search{width:100%;padding:10px;margin:10px 0;border:1px solid #aaa;
+border-radius:7px;background:white}
+.species{padding:11px 0;border-bottom:1px solid #c9bfab}
+.species strong{display:block;font-style:italic}
+.species small{display:block;color:#637277;margin:4px 0}
+.species button{margin-top:6px}
+#pages{display:flex;align-items:center;justify-content:space-between;
+gap:8px;padding:9px;border-top:1px solid #c9bfab}
+body.closed main{grid-template-columns:minmax(0,1fr)}
+body.closed #info,body.closed #divider{display:none}
+@media(max-width:800px){
+ main,body.closed main{display:block;position:relative}
+ #world,#info{position:absolute;inset:0;width:100%;height:100%}
+ #divider{display:none}
+ #info{display:none}
+ body.mobile-info #info{display:flex}
+ body.mobile-info #world{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+<strong>ASTER / REEDWATER</strong>
+<span>Unified World Explorer · v17.2</span>
+<button id="toggle">Hide information</button>
+</header>
+<main id="workspace">
+<section id="world">
+<iframe id="world-frame" title="ASTER 3D landscape"></iframe>
+</section>
+<div id="divider"></div>
+<aside id="info">
+<nav id="tabs">
+<button id="species-tab" aria-selected="true">Species</button>
+<button id="guide-tab" aria-selected="false">Field Guide</button>
+</nav>
+<section id="catalogue">
+<h2>Reedwater species</h2>
+<p>437 source-linked records. Physical placement and 3D
+representation remain unverified.</p>
+<input id="search" type="search" placeholder="Search species or ID">
+<p id="count"></p>
+<div id="results"></div>
+</section>
+<section id="guide" hidden>
+<iframe id="guide-frame" title="Selected species Field Guide"></iframe>
+</section>
+<div id="pages">
+<button id="previous">Previous</button>
+<span id="page-label"></span>
+<button id="next">Next</button>
+</div>
+</aside>
+</main>
+<script type="module" src="./assets/world-workspace-v17-2.js"></script>
+
+<style id="ASTER_V17_2_REMOVE_DUPLICATE_CATALOGUE">
+#aster-catalogue-open,
+body > #aster-catalogue,
+button#aster-catalogue-open {
+    display: none !important;
+    visibility: hidden !important;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const removeDuplicate = () => {
+        document.getElementById('aster-catalogue-open')?.remove();
+        document.querySelector('body > #aster-catalogue')?.remove();
+    };
+
+    removeDuplicate();
+
+    new MutationObserver(removeDuplicate).observe(document.body, {
+        childList: true
+    });
+});
+</script>
+
+</body>
+</html>

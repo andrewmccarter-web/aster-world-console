@@ -1,0 +1,44 @@
+{
+  "schema": "ASTER_WORLD_WORKSPACE_v17_2",
+  "status": "PROVISIONAL_INTERFACE",
+  "scene_authority": "NONE",
+  "default_panel": "species",
+  "domains": [
+    {
+      "id": "species",
+      "label": "Species",
+      "status": "SOURCE_LINKED",
+      "source": "reedwater_species_catalogue_v14.json"
+    },
+    {
+      "id": "climate",
+      "label": "Climate",
+      "status": "AWAITING_VALIDATED_ADAPTER"
+    },
+    {
+      "id": "geography",
+      "label": "Geography",
+      "status": "AWAITING_VALIDATED_ADAPTER"
+    },
+    {
+      "id": "settlements",
+      "label": "Settlements",
+      "status": "AWAITING_VALIDATED_ADAPTER"
+    },
+    {
+      "id": "architecture",
+      "label": "Architecture",
+      "status": "AWAITING_VALIDATED_ADAPTER"
+    },
+    {
+      "id": "culture",
+      "label": "Culture",
+      "status": "AWAITING_VALIDATED_ADAPTER"
+    },
+    {
+      "id": "trade",
+      "label": "Trade",
+      "status": "AWAITING_VALIDATED_ADAPTER"
+    }
+  ]
+}
