@@ -4,6 +4,7 @@ import {
   searchSpecies,
   guideURL
 } from './species-catalogue-v14.js';
+import { useLocalGuide, publicGuideHtml } from './public-field-guide-v18.js';
 
 const $ = id => document.getElementById(id);
 
@@ -120,18 +121,23 @@ function showMode(nextMode) {
   $('pages').hidden = mode !== 'species';
 
   if (mode === 'guide') {
-    const destination = guideURL(selected, guideBase);
-    if (destination) {
-      guide.src = destination;
-
-      guide.addEventListener('load', () => {
-        // Cross-origin Field Guide runs on port 8765.
-        // Its floating controls must be handled by the
-        // Field Guide itself, not accessed from this parent.
-      }, {once:true});
+    const record = records.find(item => item.species_id === selected);
+    if (!record) return;
+    if (useLocalGuide(location.hostname)) {
+      const destination = guideURL(selected, guideBase);
+      if (destination) {
+        guide.removeAttribute('srcdoc');
+        guide.src = destination;
+      }
+    } else {
+      // Public visitors must not be sent to their own localhost.
+      // This is catalogue detail only; it does not assign scene presence.
+      guide.removeAttribute('src');
+      guide.srcdoc = publicGuideHtml(record);
     }
   } else {
     guide.removeAttribute('src');
+    guide.removeAttribute('srcdoc');
     render();
   }
 }
