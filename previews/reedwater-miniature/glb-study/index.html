@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASTER / Reedwater · Experimental GLB Study</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui;background:#101c26;color:#f5ead2}
+*{box-sizing:border-box}body{margin:0}header,aside{padding:16px}a{color:#bce2cf}
+h1{font-size:1.35rem}main{display:grid;grid-template-columns:minmax(0,1fr) 320px}
+#stage{height:70vh;min-height:300px}canvas{display:block;width:100%;height:100%}
+button,select,input{font:inherit;margin:6px 0;padding:8px;max-width:100%}select{width:100%}
+p{line-height:1.5}#identity{overflow-wrap:anywhere;font-size:.8rem}label{display:block}
+@media(max-width:760px){main{grid-template-columns:1fr}#stage{height:55vh}aside{padding-top:0}}
+</style></head><body>
+<header><a href="../v17-2-unified-desktop.html">← Reedwater Explorer</a>
+<h1>ASTER / 3D asset study</h1><p>EXPERIMENTAL · NONCANONICAL · File import only</p></header>
+<main><section id="stage" aria-label="Orbitable 3D asset preview"></section><aside>
+<label>Import a self-contained GLB from this device
+<input id="file" type="file" accept=".glb,model/gltf-binary"></label>
+<label for="clips">Animation clip</label><select id="clips" disabled></select>
+<button id="play" disabled>Play</button> <button id="frame" disabled>Frame asset</button>
+<p><output id="playback">Playback 0.00 s · paused</output></p>
+<p id="status" role="status">Starting viewer…</p><p id="identity"></p>
+<p>Drag to orbit · scroll or pinch to zoom. Biological scale is unknown.</p>
+<p>Imported geometry and motion are an artistic study. No species identity, habitat occurrence, physical gait or world-state link is established.</p>
+<p>GLB stays in browser memory; no upload or canonical write. Maximum 80 MiB. This experimental page loads Three.js modules from a third-party CDN and therefore requires network access; do not treat it as an offline or fully self-hosted release.</p>
+</aside></main>
+<script type="importmap">{"imports":{
+"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+}}</script>
+<script type="module" src="./viewer.js"></script></body></html>
