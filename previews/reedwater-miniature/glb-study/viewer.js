@@ -18,12 +18,19 @@ function clear(){action=null;playing=false;if(mixer){mixer.stopAllAction();mixer
 function frame(){if(!root)return;const box=new T.Box3().setFromObject(root),center=box.getCenter(new T.Vector3()),size=box.getSize(new T.Vector3()).length();if(!Number.isFinite(size)||size<=0)throw Error('Empty or invalid bounds');const d=size/(2*Math.tan(T.MathUtils.degToRad(camera.fov/2)))*Math.max(1,1/camera.aspect)*1.2;controls.target.copy(center);camera.position.copy(center).add(new T.Vector3(.7,.35,1).normalize().multiplyScalar(d));camera.near=Math.max(size/1000,.00001);camera.far=d+size*20;camera.updateProjectionMatrix();controls.update();}
 function choose(){mixer.stopAllAction();action=mixer.clipAction(root.userData.clips[el('clips').selectedIndex]);action.reset().play();action.paused=!playing;}
 async function load(buffer,name){const ticket=++generation;clear();status.textContent='Checking asset…';try{
- const doc=inspectGLB(buffer),digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',buffer)),x=>x.toString(16).padStart(2,'0')).join('');
+ const doc=inspectGLB(buffer);
+ // Web Crypto may be unavailable on HTTP LAN/Tailscale origins (non-secure contexts).
+ // Hash display is informational, never an admission or identity gate.
+ let digest=null;
+ if(globalThis.crypto?.subtle?.digest){
+   try{digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',buffer)),x=>x.toString(16).padStart(2,'0')).join('');}
+   catch{digest=null;}
+ }
  const gltf=await loader.parseAsync(buffer,'');if(ticket!==generation){dispose(gltf.scene);return;}
  root=gltf.scene;root.userData.clips=gltf.animations;scene.add(root);frame();mixer=new T.AnimationMixer(root);playing=false;
  for(const [i,clip] of gltf.animations.entries()){const option=document.createElement('option');option.value=i;option.textContent=`${clip.name||'Clip '+(i+1)} · ${clip.duration.toFixed(2)} s`;el('clips').append(option);}
  el('clips').disabled=el('play').disabled=!gltf.animations.length;el('frame').disabled=false;if(gltf.animations.length)choose();
- el('identity').textContent=`${name} · SHA-256 ${digest} · Local import; provenance and species identity unverified`;
+ el('identity').textContent=`${name} · ${digest?'SHA-256 '+digest:'SHA-256 unavailable on this origin'} · Local import; provenance and species identity unverified`;
  status.textContent=`Loaded ${doc.meshes?.length||0} mesh(es), ${gltf.animations.length} clip(s). Paused. Noncanonical.`;
  }catch(e){if(ticket!==generation)return;clear();status.textContent='Import blocked: '+e.message;}}
 el('file').onchange=async e=>{const file=e.target.files[0];if(!file)return;if(file.size>80*1024*1024){++generation;clear();status.textContent='Import blocked: maximum 80 MiB';return;}await load(await file.arrayBuffer(),file.name);e.target.value='';};
