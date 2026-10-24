@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+/* ASTER observer-only full settlement regression. No network, writes, or dependencies.
+ * Run from repository root: node tests/verify_full_settlements.cjs
+ * Does not promote provisional display geometry to canonical geography.
+ */
+'use strict';
+const fs=require('node:fs'),zlib=require('node:zlib'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+function embedded(file,id){const s=fs.readFileSync(file,'utf8');const re=new RegExp('<script[^>]*id="'+id+'"[^>]*>([\\s\\S]*?)<\\/script>');const m=s.match(re);assert(m,'Missing embedded '+id);return JSON.parse(m[1]);}
+function contains([x,y],ring){let hit=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const a=ring[i],b=ring[j];const cr=(x-a[0])*(b[1]-a[1])-(y-a[1])*(b[0]-a[0]);if(Math.abs(cr)<1e-12&&x>=Math.min(a[0],b[0])-1e-12&&x<=Math.max(a[0],b[0])+1e-12&&y>=Math.min(a[1],b[1])-1e-12&&y<=Math.max(a[1],b[1])+1e-12)return true;if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit;}return hit;}
+function cross(a,b,c,d){const f=(p,q,t)=>(q[0]-p[0])*(t[1]-p[1])-(q[1]-p[1])*(t[0]-p[0]);return f(a,b,c)*f(a,b,d)<-1e-14&&f(c,d,a)*f(c,d,b)<-1e-14;}
+function overlaps(p,q){if(p.some(x=>contains(x,q))||q.some(x=>contains(x,p)))return true;for(let i=0;i<p.length;i++)for(let j=0;j<q.length;j++)if(cross(p[i],p[(i+1)%p.length],q[j],q[(j+1)%q.length]))return true;return false;}
+const matrices={6:[1.0014059286651962,-.6681369882326275,-.6681369882326275,1.4443763449378864,-.06271206871059098,.26061686752542196],7:[1.0014059286651962,-.6681369882326275,-.6681369882326275,1.4443763449378864,-.08749073627453224,.2427262607370018],29:[1.2988202926497239,.30265508346397624,.30265508346397624,.840455069669117,-.4420463371648694,-.058197426737912394],30:[1.2988202926497239,.30265508346397624,.30265508346397624,.840455069669117,-.43340257994014386,-.07558518954341265]};
+function display(island,x,y){const m=matrices[island];return m?[m[0]*x+m[1]*y+m[4],m[2]*x+m[3]*y+m[5]]:[x,y];}
+const v5=embedded('index.html','operational-coastlines').islands,v6=embedded('index.html','embedded-coastlines').islands,upper=embedded('settlements.html','aster-data').settlements;
+assert.equal(v5.length,32);assert.equal(v6.length,32);
+for(const v of [v5,v6])for(const island of v){assert.equal(island.points.length,96);for(const p of island.points)assert(p.length===2&&p.every(Number.isFinite));}
+let overlap5=[],overlap6=[];for(let i=0;i<32;i++)for(let j=i+1;j<32;j++){if(overlaps(v5[i].points,v5[j].points))overlap5.push([i,j]);if(overlaps(v6[i].points,v6[j].points))overlap6.push([i,j]);}
+assert.deepEqual(overlap5,[[6,7],[29,30]]);assert.deepEqual(overlap6,[]);
+const ids=new Set(),counts={conurbation:0,city:0,town:0,village:0,hamlet:0};let total=0;
+function check(id,klass,island,x,y,X,Y){assert(typeof id==='string'&&id.length>0,'invalid ID');assert(!ids.has(id),'duplicate ID '+id);ids.add(id);assert(Object.hasOwn(counts,klass),'invalid class '+klass);assert(Number.isInteger(island)&&island>=0&&island<32,'invalid island '+id);assert([x,y,X,Y].every(Number.isFinite),'nonfinite coordinate '+id);assert(contains([x,y],v5[island].points),'outside v5 '+id);assert(contains([X,Y],v6[island].points),'outside v6 '+id);const expected=display(island,x,y);assert(Math.hypot(expected[0]-X,expected[1]-Y)<1e-9,'transform mismatch '+id);counts[klass]++;total++;}
+for(const f of upper){const p=f.properties;check(p.settlement_id,p.class,p.anchor_island,p.world_x,p.world_y,...f.geometry.coordinates);}
+const regions={Reedwater:['lower_reedwater_1','lower_reedwater_2'],Broadroot:['lower_broadroot'],Redvale:['lower_redvale'],Skyglass:['lower_skyglass'],Crosscurrent:['lower_crosscurrent'],Siltwatch:['lower_siltwatch']};const fileHashes={};let lower=0;
+for(const [region,stems] of Object.entries(regions))for(const stem of stems){const file='data/'+stem+'.txt',encoded=fs.readFileSync(file,'utf8').trim();assert(/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)&&encoded.length%4===0,'invalid base64 '+file);const bytes=Buffer.from(encoded,'base64');assert.equal(bytes[0],0x1f);assert.equal(bytes[1],0x8b);const rows=JSON.parse(zlib.gunzipSync(bytes).toString('utf8'));assert(Array.isArray(rows),'invalid JSON array '+file);for(const row of rows){assert(Array.isArray(row)&&row.length>=6,'invalid lower row '+file);const [id,name,code,x,y,island]=row;assert(typeof name==='string'&&name.length>0,'invalid name '+id);assert(code==='v'||code==='h','invalid lower class '+id);check(id,code==='v'?'village':'hamlet',island,x,y,...display(island,x,y));lower++;}fileHashes[file]=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');console.log(region,stem,rows.length);}
+assert.equal(upper.length,1073);assert.equal(lower,205229);assert.equal(total,206302);assert.deepEqual(counts,{conurbation:17,city:76,town:980,village:15492,hamlet:189737});
+console.log(JSON.stringify({status:'PASS',authority:'DERIVED-PROVISIONAL_OBSERVER_ONLY',total,upper:upper.length,lower,unique_ids:ids.size,counts,v5_overlaps:overlap5,v6_overlaps:overlap6,file_sha256:fileHashes},null,2));
